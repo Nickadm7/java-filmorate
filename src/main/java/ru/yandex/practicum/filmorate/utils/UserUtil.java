@@ -12,7 +12,7 @@ import java.util.Map;
 @Slf4j
 public class UserUtil {
     private final Map<Integer, User> userStorage = new HashMap<>();
-    Integer idUserStorage = 1;
+    private Integer idUserStorage = 1;
 
     public User addUser(User user) {
         if (validation(user)) {
