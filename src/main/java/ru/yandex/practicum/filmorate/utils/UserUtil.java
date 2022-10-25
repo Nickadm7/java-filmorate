@@ -15,34 +15,21 @@ public class UserUtil {
     private Integer idUserStorage = 1;
 
     public User addUser(User user) {
-        if (validation(user)) {
-            checkAndSetName(user);
-            user.setId(createNewId());
-            userStorage.put(user.getId(), user);
-            log.info("addUser в userStorage id {}, name {}", user.getId(), user.getName());
-            return user;
-        }
-        return null;
+        checkAndSetName(user);
+        user.setId(createNewId());
+        userStorage.put(user.getId(), user);
+        log.info("addUser в userStorage id {}, name {}", user.getId(), user.getName());
+        return user;
     }
 
     public User updateUser(User user) {
-        if (validation(user)) {
-            if (user.getId() != null) {
-                if (userStorage.containsKey(user.getId())) {
-                    userStorage.put(user.getId(), user);
-                    log.info("updateUser в userStorage id {}, name {}", user.getId(), user.getName());
-                    return user;
-                } else {
-                    throw new ValidationException("updateUser не найден id user для обновления");
-                }
-            } else {
-                user.setId(createNewId());
-                userStorage.put(user.getId(), user);
-                log.info("updateUser добавлен User в userStorage id {}, name {}", user.getId(), user.getName());
-                return user;
-            }
+        if (userStorage.containsKey(user.getId())) {
+            userStorage.put(user.getId(), user);
+            log.info("updateUser в userStorage id {}, name {}", user.getId(), user.getName());
+            return user;
+        } else {
+            throw new ValidationException("updateUser не найден id user для обновления");
         }
-        return null;
     }
 
     public Collection<User> getAllUsers() {
