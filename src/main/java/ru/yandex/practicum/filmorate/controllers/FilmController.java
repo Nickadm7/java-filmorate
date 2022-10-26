@@ -10,7 +10,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    FilmUtil filmUtil = new FilmUtil();
+    private final FilmUtil filmUtil = new FilmUtil();
 
     @GetMapping
     public Collection<Film> getFilms() {

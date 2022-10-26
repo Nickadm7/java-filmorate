@@ -10,7 +10,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    UserUtil userUtil = new UserUtil();
+    private final UserUtil userUtil = new UserUtil();
 
     @GetMapping
     public Collection<User> getUsers() {

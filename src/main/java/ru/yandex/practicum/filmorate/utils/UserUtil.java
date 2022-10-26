@@ -36,11 +36,6 @@ public class UserUtil {
         return userStorage.values();
     }
 
-    private boolean validation(User user) {
-        //валидация переделана через @Valid
-        return true;
-    }
-
     private void checkAndSetName(User user) {
         if (user.getName() == null) {
             log.info("checkAndSetName добавлен User без Name");
