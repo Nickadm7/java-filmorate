@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -45,6 +47,14 @@ public class InMemoryUserStorage implements UserStorage{
         } else if (user.getName().isBlank()) {
             log.info("checkAndSetName добавлен User isBlank Name");
             user.setName(user.getLogin());
+        }
+    }
+
+    public User getUserById(int id) {
+        if (userStorage.containsKey(id)) {
+            return userStorage.get(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
