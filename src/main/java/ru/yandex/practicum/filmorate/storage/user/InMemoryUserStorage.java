@@ -26,6 +26,16 @@ public class InMemoryUserStorage implements UserStorage{
         return user;
     }
 
+    @Override
+    public void addFriend(int id, int friendId) {
+        if (userStorage.containsKey(id) & userStorage.containsKey(friendId)) {
+            userStorage.get(id).getFriends().add(friendId);
+            userStorage.get(friendId).getFriends().add(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
     public User updateUser(User user) {
         if (userStorage.containsKey(user.getId())) {
             userStorage.put(user.getId(), user);

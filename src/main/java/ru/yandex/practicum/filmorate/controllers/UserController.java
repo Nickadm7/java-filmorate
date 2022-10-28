@@ -35,4 +35,9 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User user) {
         return inMemoryUserStorage.updateUser(user);
     }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        inMemoryUserStorage.addFriend(id, friendId);
+    }
 }

@@ -12,4 +12,6 @@ public interface UserStorage {
     Collection<User> getAllUsers();
 
     User getUserById(int id);
+
+    void addFriend(int id, int friendId);
 }
