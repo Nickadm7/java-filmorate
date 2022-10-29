@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -36,7 +35,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void addFriend(int id, int friendId) {
         if (userStorage.containsKey(id) & userStorage.containsKey(friendId)) {
-            if (userStorage.get(id).getFriends().contains(friendId) || userStorage.get(friendId).getFriends().contains(id)){
+            if (userStorage.get(id).getFriends().contains(friendId) || userStorage.get(friendId).getFriends().contains(id)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
             userStorage.get(id).getFriends().add(friendId);
@@ -79,32 +78,40 @@ public class InMemoryUserStorage implements UserStorage {
         return userStorage.values();
     }
 
-    public Set<Integer> getUserFriends(int id) {
+    public List<User> getUserFriends(int id) {
+        List<User> friends = new ArrayList<>();
         if (userStorage.containsKey(id)) {
-            if (userStorage.get(id).getFriends().isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            }
-            return userStorage.get(id).getFriends();
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @Override
-    public Set<Integer> getCommonFriends(int id, int otherId) {
-        if (userStorage.containsKey(id) & userStorage.containsKey(otherId)) {
-            if (userStorage.get(id).getFriends() != null || userStorage.get(otherId).getFriends() != null) {
-                Set<Integer> intersection = new HashSet<Integer>(userStorage.get(id).getFriends());
-                Set<Integer> bufferSetOtherId = userStorage.get(otherId).getFriends();
-                intersection.retainAll(bufferSetOtherId);
-                return intersection;
+            if (!userStorage.get(id).getFriends().isEmpty()) {
+                for (int currentid : userStorage.get(id).getFriends()) {
+                    friends.add(userStorage.get(currentid));
+                }
+                return friends;
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
 
+    @Override
+    public List<User> getCommonFriends(int id, int otherId) {
+        List<User> friends = new ArrayList<>();
+        if (userStorage.containsKey(id) && userStorage.containsKey(otherId)) {
+            if (userStorage.get(id).getFriends() != null || userStorage.get(otherId).getFriends() != null) {
+                Set<Integer> intersection = new HashSet<Integer>(userStorage.get(id).getFriends());
+                Set<Integer> bufferSetOtherId = userStorage.get(otherId).getFriends();
+                intersection.retainAll(bufferSetOtherId);
+                for (Integer currentIdCommon: intersection) {
+                    friends.add(userStorage.get(currentIdCommon));
+                }
+                return friends;
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     private void checkAndSetName(User user) {

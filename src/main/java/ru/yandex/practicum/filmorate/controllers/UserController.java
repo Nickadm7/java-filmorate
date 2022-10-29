@@ -2,13 +2,12 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,7 +21,7 @@ public class UserController {
     }
 
     @GetMapping("{id}/friends")
-    public Set<Integer> getUserFriends(@PathVariable int id) {
+    public List<User> getUserFriends(@PathVariable int id) {
         return inMemoryUserStorage.getUserFriends(id);
     }
 
@@ -32,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
-    public Set<Integer> getGeneralFriends(@PathVariable int id, @PathVariable int otherId) {
+    public List<User> getGeneralFriends(@PathVariable int id, @PathVariable int otherId) {
         return inMemoryUserStorage.getCommonFriends(id, otherId);
     }
 

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 public interface FilmStorage {
-
     Film addFilm(Film film);
 
     Film updateFilm(Film film);
