@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,12 +27,14 @@ public class ModelUserValidTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private User getValidUser() {
+        Set<Integer> friends= new HashSet<>();
         return new User(
                 1,
                 "Test@test.mail",
                 "LoginTest",
                 "NameTest",
-                LocalDate.of(2007, 12, 12)
+                LocalDate.of(2007, 12, 12),
+                friends
         );
     }
 
