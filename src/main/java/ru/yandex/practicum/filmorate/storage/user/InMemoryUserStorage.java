@@ -17,9 +17,6 @@ public class InMemoryUserStorage implements UserStorage {
     private Integer idUserStorage = 1;
 
     public User addUser(User user) {
-        if (user.getFriends() == null || user.getFriends().isEmpty()) {
-            user.setFriends(Collections.emptySet());
-        }
         checkAndSetName(user);
         user.setId(createNewId());
         Set<Integer> friends = user.getFriends();
@@ -39,11 +36,11 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void addFriend(int id, int friendId) {
         if (userStorage.containsKey(id) & userStorage.containsKey(friendId)) {
-            if (userStorage.get(id).getFriends() != null & userStorage.get(friendId) != null) {
-                userStorage.get(id).getFriends().add(friendId);
-                userStorage.get(friendId).getFriends().add(id);
-                System.out.println("Ветвление Ok");
+            if (userStorage.get(id).getFriends().contains(friendId) || userStorage.get(friendId).getFriends().contains(id)){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
+            userStorage.get(id).getFriends().add(friendId);
+            userStorage.get(friendId).getFriends().add(id);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -74,7 +71,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.info("updateUser в userStorage id {}, name {}", user.getId(), user.getName());
             return user;
         } else {
-            throw new ValidationException("updateUser не найден id user для обновления");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -84,9 +81,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     public Set<Integer> getUserFriends(int id) {
         if (userStorage.containsKey(id)) {
+            if (userStorage.get(id).getFriends().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
             return userStorage.get(id).getFriends();
         } else {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -99,10 +99,10 @@ public class InMemoryUserStorage implements UserStorage {
                 intersection.retainAll(bufferSetOtherId);
                 return intersection;
             } else {
-                return null;
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
         } else {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
     }

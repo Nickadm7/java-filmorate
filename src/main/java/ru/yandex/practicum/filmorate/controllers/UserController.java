@@ -36,7 +36,6 @@ public class UserController {
         return inMemoryUserStorage.getCommonFriends(id, otherId);
     }
 
-
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         return inMemoryUserStorage.addUser(user);

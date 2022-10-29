@@ -8,13 +8,13 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> filmStorage = new HashMap<>();
     private Integer idFilmStorage = 1;
 
@@ -31,7 +31,7 @@ public class InMemoryFilmStorage implements FilmStorage{
             log.info("updateFilm в filmStorage id {}, name {}", film.getId(), film.getName());
             return film;
         } else {
-            throw new ValidationException("updateFilm не найден id фильма для обновления");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -59,10 +59,21 @@ public class InMemoryFilmStorage implements FilmStorage{
     @Override
     public void userDeleteLikeFilm(int id, int userId) {
         if (filmStorage.containsKey(id)) {
-            filmStorage.get(id).getLike().remove(userId);
+            if (filmStorage.get(id).getLike().contains(userId)) {
+                filmStorage.get(id).getLike().remove(userId);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Override
+    public Stream<Film> getPopularFilms(Integer count) {
+        return getAllFilms().stream()
+                .sorted((a, b) -> b.getLike().size() - a.getLike().size())
+                .limit(count);
     }
 
     private Integer createNewId() {

@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @RestController
@@ -17,21 +19,23 @@ public class FilmController {
 
     @GetMapping()
     public Collection<Film> getFilms() {
-        log.info("Получен запрос на получение списка всех фильмов");
         return inMemoryFilmStorage.getAllFilms();
     }
 
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable int id) {
-        log.info("Получен запрос на получение фильма с id: {}", id);
         return inMemoryFilmStorage.getFilmById(id);
+    }
+
+    @GetMapping("/popular")
+    public Stream<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
+        return inMemoryFilmStorage.getPopularFilms(count);
     }
 
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        log.info("Получен запрос на добавление фильма");
         return inMemoryFilmStorage.addFilm(film);
     }
 
