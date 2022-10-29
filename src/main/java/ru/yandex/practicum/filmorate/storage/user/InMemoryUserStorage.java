@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 
 @Slf4j
-@Component
+@Component ("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> userStorage = new HashMap<>();
     private Integer idUserStorage = 1;
@@ -99,7 +99,7 @@ public class InMemoryUserStorage implements UserStorage {
         List<User> friends = new ArrayList<>();
         if (userStorage.containsKey(id) && userStorage.containsKey(otherId)) {
             if (userStorage.get(id).getFriends() != null || userStorage.get(otherId).getFriends() != null) {
-                Set<Integer> intersection = new HashSet<Integer>(userStorage.get(id).getFriends());
+                Set<Integer> intersection = new HashSet<>(userStorage.get(id).getFriends());
                 Set<Integer> bufferSetOtherId = userStorage.get(otherId).getFriends();
                 intersection.retainAll(bufferSetOtherId);
                 for (Integer currentIdCommon: intersection) {

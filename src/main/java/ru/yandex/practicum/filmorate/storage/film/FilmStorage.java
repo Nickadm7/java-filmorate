@@ -18,5 +18,5 @@ public interface FilmStorage {
 
     void userDeleteLikeFilm(int id, int userId);
 
-    Stream<Film> getPopularFilms(Integer count);
+    Stream<Film> getPopularFilms(int count);
 }

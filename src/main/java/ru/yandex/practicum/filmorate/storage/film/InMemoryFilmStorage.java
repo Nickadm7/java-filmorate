@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Slf4j
-@Component
+@Component ("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> filmStorage = new HashMap<>();
     private Integer idFilmStorage = 1;
@@ -69,7 +69,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Stream<Film> getPopularFilms(Integer count) {
+    public Stream<Film> getPopularFilms(int count) {
         return getAllFilms().stream()
                 .sorted((a, b) -> b.getLike().size() - a.getLike().size())
                 .limit(count);
