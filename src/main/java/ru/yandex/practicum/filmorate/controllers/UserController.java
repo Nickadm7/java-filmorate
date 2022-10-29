@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -20,11 +21,21 @@ public class UserController {
         return inMemoryUserStorage.getAllUsers();
     }
 
+    @GetMapping("{id}/friends")
+    public Set<Integer> getUserFriends(@PathVariable int id) {
+        return inMemoryUserStorage.getUserFriends(id);
+    }
+
     @GetMapping("/{id}")
     public User getUserById(@PathVariable int id) {
-        log.info("Получен запрос на получение фильма с id: {}", id);
         return inMemoryUserStorage.getUserById(id);
     }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public Set<Integer> getGeneralFriends(@PathVariable int id, @PathVariable int otherId) {
+        return inMemoryUserStorage.getCommonFriends(id, otherId);
+    }
+
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
@@ -39,5 +50,10 @@ public class UserController {
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
         inMemoryUserStorage.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        inMemoryUserStorage.deleteFriend(id, friendId);
     }
 }

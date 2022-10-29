@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,5 +34,5 @@ public class User {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthday;
-    private Set<Integer> friends;
+    private Set<Integer> friends = new HashSet<>();
 }

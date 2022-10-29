@@ -39,4 +39,14 @@ public class FilmController {
     public Film updateFilm(@Valid @RequestBody Film film) {
         return inMemoryFilmStorage.updateFilm(film);
     }
+
+    @PutMapping("{id}/like/{userId}")
+    public void userLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        inMemoryFilmStorage.userLikeFilm(id, userId);
+    }
+
+    @DeleteMapping ("{id}/like/{userId}")
+    public void userDeleteLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        inMemoryFilmStorage.userDeleteLikeFilm(id, userId);
+    }
 }
