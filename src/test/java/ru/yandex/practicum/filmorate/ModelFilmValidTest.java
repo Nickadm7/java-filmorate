@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,12 +27,14 @@ public class ModelFilmValidTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private Film getValidFilm() {
+        Set<Integer> likes = new HashSet<>();
         return new Film(
                 1,
                 "TestName",
                 "Description",
                 LocalDate.of(2007, 12, 12),
-                100
+                100,
+                likes
         );
     }
 

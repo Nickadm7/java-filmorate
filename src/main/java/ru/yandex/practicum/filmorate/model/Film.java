@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.validation.AfterFirstFilm;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -31,4 +33,5 @@ public class Film {
     @NotNull
     @Positive
     private Integer duration;
+    private Set<Integer> like = new HashSet<>();
 }
