@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 
 @Slf4j
-@Component ("inMemoryUserStorage")
+@Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> userStorage = new HashMap<>();
     private Integer idUserStorage = 1;
@@ -34,7 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(int id, int friendId) {
-        if (userStorage.containsKey(id) & userStorage.containsKey(friendId)) {
+        if (userStorage.containsKey(id) && userStorage.containsKey(friendId)) {
             if (userStorage.get(id).getFriends().contains(friendId) || userStorage.get(friendId).getFriends().contains(id)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
@@ -50,8 +50,8 @@ public class InMemoryUserStorage implements UserStorage {
         if (id == friendId) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        if (userStorage.containsKey(id) & userStorage.containsKey(friendId)) {
-            if (userStorage.get(id) != null & userStorage.get(friendId) != null) {
+        if (userStorage.containsKey(id) && userStorage.containsKey(friendId)) {
+            if (userStorage.get(id) != null && userStorage.get(friendId) != null) {
                 if (userStorage.get(id).getFriends().contains(friendId)) {
                     userStorage.get(id).getFriends().remove(friendId);
                     userStorage.get(friendId).getFriends().remove(id);
@@ -82,8 +82,8 @@ public class InMemoryUserStorage implements UserStorage {
         List<User> friends = new ArrayList<>();
         if (userStorage.containsKey(id)) {
             if (!userStorage.get(id).getFriends().isEmpty()) {
-                for (int currentid : userStorage.get(id).getFriends()) {
-                    friends.add(userStorage.get(currentid));
+                for (int currentId : userStorage.get(id).getFriends()) {
+                    friends.add(userStorage.get(currentId));
                 }
                 return friends;
             } else {

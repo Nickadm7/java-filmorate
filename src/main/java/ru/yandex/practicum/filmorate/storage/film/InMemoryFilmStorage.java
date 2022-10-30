@@ -8,11 +8,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Component ("inMemoryFilmStorage")
+@Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> filmStorage = new HashMap<>();
     private Integer idFilmStorage = 1;
@@ -69,10 +70,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Stream<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(int count) {
         return getAllFilms().stream()
                 .sorted((a, b) -> b.getLike().size() - a.getLike().size())
-                .limit(count);
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     private Integer createNewId() {
