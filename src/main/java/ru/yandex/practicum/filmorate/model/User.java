@@ -35,4 +35,11 @@ public class User {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthday;
     private Set<Integer> friends = new HashSet<>();
+
+    public User(Integer id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+    }
 }
