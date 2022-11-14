@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -10,11 +11,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Component("UserDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -25,14 +29,15 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
+        checkAndSetName(user);
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         simpleJdbcInsert.withTableName("users").usingGeneratedKeyColumns("id");
-        SqlParameterSource parametersU = new MapSqlParameterSource()
+        SqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("name", user.getName())
                 .addValue("login", user.getLogin())
                 .addValue("email", user.getEmail())
                 .addValue("birthday", user.getBirthday());
-        Number id = simpleJdbcInsert.executeAndReturnKey(parametersU);
+        Number id = simpleJdbcInsert.executeAndReturnKey(parameters);
         user.setId(id.intValue());
         return user;
     }
@@ -58,8 +63,8 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * FROM users;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
                 rs.getInt("id"),
-                rs.getString("login"),
                 rs.getString("email"),
+                rs.getString("login"),
                 rs.getString("name"),
                 LocalDate.parse(rs.getString("birthday")))
         );
@@ -72,8 +77,8 @@ public class UserDbStorage implements UserStorage {
         if (userRows.next()) {
             return new User(
                     userRows.getInt("id"),
-                    userRows.getString("login"),
                     userRows.getString("email"),
+                    userRows.getString("login"),
                     userRows.getString("name"),
                     LocalDate.parse(Objects.requireNonNull(userRows.getString("birthday"))));
         } else {
@@ -83,18 +88,34 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(int id, int friendId) {
-        String sql = "MERGE INTO FRIENDSHIP KEY(from_user_id, to_user_id) VALUES (?, ?, ?);";
-        jdbcTemplate.update(sql, id, friendId, true);
+        if (getUserById(id) != null && getUserById(friendId) != null) {
+            String sql = "INSERT INTO FRIENDSHIP (FROM_USER_ID, TO_USER_ID, STATUS) VALUES (?, ?, ?)";
+            jdbcTemplate.update(sql, id, friendId, true);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Override
     public void deleteFriend(int id, int friendId) {
-
+        if (getUserById(id) != null && getUserById(friendId) != null) {
+            String sql = "DELETE FROM FRIENDSHIP WHERE FROM_USER_ID = ? AND TO_USER_ID = ?;";
+            boolean isDelete = jdbcTemplate.update(sql, id, friendId) < 1;
+            if (isDelete) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не возможно удалить");
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Override
     public Collection<User> getUserFriends(int id) {
-        return null;
+        String createQuery = "select u.* " +
+                "from FRIENDSHIP as f " +
+                "join users as u on f.FROM_USER_ID = u.id " +
+                "where f.FROM_USER_ID = ?";
+        return jdbcTemplate.query(createQuery, this::mapRowToUser, id);
     }
 
     @Override
@@ -102,5 +123,22 @@ public class UserDbStorage implements UserStorage {
         return null;
     }
 
+    private void checkAndSetName(User user) {
+        if (user.getName() == null) {
+            log.info("checkAndSetName добавлен User без Name");
+            user.setName(user.getLogin());
+        } else if (user.getName().isBlank()) {
+            log.info("checkAndSetName добавлен User isBlank Name");
+            user.setName(user.getLogin());
+        }
+    }
 
+    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
+        return new User(Integer.parseInt(resultSet.getString("id")),
+                resultSet.getString("email"),
+                resultSet.getString("login"),
+                resultSet.getString("name"),
+                resultSet.getDate("birthday").toLocalDate());
+
+    }
 }
