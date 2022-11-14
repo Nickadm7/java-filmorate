@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -33,5 +34,25 @@ public class Film {
     @NotNull
     @Positive
     private Integer duration;
+    @JsonIgnore
     private Set<Integer> like = new HashSet<>();
+    @NotNull
+    private Mpa mpa;
+
+    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Set<Integer> like) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.like = like;
+    }
+
+    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+    }
 }
