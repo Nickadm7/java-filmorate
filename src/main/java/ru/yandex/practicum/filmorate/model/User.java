@@ -8,12 +8,9 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +31,7 @@ public class User {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthday;
+    @JsonIgnore
     private Set<Integer> friends = new HashSet<>();
 
     public User(Integer id, String email, String login, String name, LocalDate birthday) {
@@ -41,5 +39,6 @@ public class User {
         this.email = email;
         this.login = login;
         this.name = name;
+        this.birthday = birthday;
     }
 }

@@ -16,36 +16,53 @@ import java.util.List;
 import java.util.Objects;
 
 @Component("UserDbStorage")
-public class UserDbStorage implements UserStorage{
+public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public User addUser(User user) {
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-        jdbcInsert.withTableName("users").usingGeneratedKeyColumns("id");
-        SqlParameterSource parameters = new MapSqlParameterSource()
-                .addValue("email", user.getEmail())
-                .addValue("login", user.getLogin())
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+        simpleJdbcInsert.withTableName("users").usingGeneratedKeyColumns("id");
+        SqlParameterSource parametersU = new MapSqlParameterSource()
                 .addValue("name", user.getName())
+                .addValue("login", user.getLogin())
+                .addValue("email", user.getEmail())
                 .addValue("birthday", user.getBirthday());
-        Number num = jdbcInsert.executeAndReturnKey(parameters);
-        Integer bufferId = num.intValue();
-        user.setId(bufferId);
+        Number id = simpleJdbcInsert.executeAndReturnKey(parametersU);
+        user.setId(id.intValue());
         return user;
     }
 
     @Override
     public User updateUser(User user) {
-        return null;
+        if (getUserById(user.getId()) != null) {
+            String sql = "MERGE INTO users (id, login, email, name, birthday) KEY (id) VALUES (?, ?, ?, ?, ?);";
+            jdbcTemplate.update(sql,
+                    user.getId(),
+                    user.getLogin(),
+                    user.getEmail(),
+                    user.getName(),
+                    user.getBirthday());
+            return user;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Override
     public Collection<User> getAllUsers() {
-        return null;
+        String sql = "SELECT * FROM users;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
+                rs.getInt("id"),
+                rs.getString("login"),
+                rs.getString("email"),
+                rs.getString("name"),
+                LocalDate.parse(rs.getString("birthday")))
+        );
     }
 
     @Override
@@ -60,14 +77,14 @@ public class UserDbStorage implements UserStorage{
                     userRows.getString("name"),
                     LocalDate.parse(Objects.requireNonNull(userRows.getString("birthday"))));
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("Пользователь не найден"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден");
         }
     }
 
     @Override
     public void addFriend(int id, int friendId) {
-
+        String sql = "MERGE INTO FRIENDSHIP KEY(from_user_id, to_user_id) VALUES (?, ?, ?);";
+        jdbcTemplate.update(sql, id, friendId, true);
     }
 
     @Override
@@ -84,4 +101,6 @@ public class UserDbStorage implements UserStorage{
     public List<User> getCommonFriends(int id, int otherId) {
         return null;
     }
+
+
 }
