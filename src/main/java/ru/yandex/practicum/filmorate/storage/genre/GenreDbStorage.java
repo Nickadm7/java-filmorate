@@ -41,7 +41,7 @@ public class GenreDbStorage implements GenreStorage{
                     genreRows.getString("NAME"));
         } else {
             log.info("Запрошен не существующий genre с id={}", genreId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм не найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
