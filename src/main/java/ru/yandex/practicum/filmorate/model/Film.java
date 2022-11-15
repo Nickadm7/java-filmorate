@@ -14,7 +14,6 @@ import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Data
 @NoArgsConstructor
@@ -39,7 +38,7 @@ public class Film {
     private Set<Integer> like = new HashSet<>();
     @NotNull
     private Mpa mpa;
-    private TreeSet<Genre> genres;
+    private Set<Genre> genres;
 
     public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Set<Integer> like) {
         this.id = id;
@@ -56,5 +55,15 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
+    }
+
+    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, Set<Genre> genres) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+        this.genres = genres;
     }
 }
