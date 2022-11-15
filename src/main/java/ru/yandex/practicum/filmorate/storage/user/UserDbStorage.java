@@ -31,7 +31,7 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         checkAndSetName(user);
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-        simpleJdbcInsert.withTableName("users").usingGeneratedKeyColumns("id");
+        simpleJdbcInsert.withTableName("USERS").usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("name", user.getName())
                 .addValue("login", user.getLogin())
@@ -45,7 +45,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         if (getUserById(user.getId()) != null) {
-            String sql = "MERGE INTO users (id, login, email, name, birthday) KEY (id) VALUES (?, ?, ?, ?, ?);";
+            String sql = "MERGE INTO USERS (id, login, email, name, birthday) KEY (id) VALUES (?, ?, ?, ?, ?);";
             jdbcTemplate.update(sql,
                     user.getId(),
                     user.getLogin(),
@@ -60,7 +60,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getAllUsers() {
-        String sql = "SELECT * FROM users;";
+        String sql = "SELECT * FROM USERS;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
                 rs.getInt("id"),
                 rs.getString("email"),
@@ -111,11 +111,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getUserFriends(int id) {
-        String createQuery = "select u.* " +
+        String sql = "select u.* " +
                 "from FRIENDSHIP as f " +
-                "join users as u on f.FROM_USER_ID = u.id " +
+                "join USERS as u on f.FROM_USER_ID = u.ID " +
                 "where f.FROM_USER_ID = ?";
-        return jdbcTemplate.query(createQuery, this::mapRowToUser, id);
+        return jdbcTemplate.query(sql, this::mapRowToUser, id);
     }
 
     @Override
@@ -136,8 +136,8 @@ public class UserDbStorage implements UserStorage {
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return new User(Integer.parseInt(resultSet.getString("id")),
                 resultSet.getString("email"),
-                resultSet.getString("login"),
                 resultSet.getString("name"),
+                resultSet.getString("login"),
                 resultSet.getDate("birthday").toLocalDate());
 
     }
