@@ -91,7 +91,9 @@ public class UserDbStorage implements UserStorage {
         if (getUserById(id) != null && getUserById(friendId) != null) {
             String sql = "INSERT INTO FRIENDSHIP (FROM_USER_ID, TO_USER_ID, STATUS) VALUES (?, ?, ?)";
             jdbcTemplate.update(sql, id, friendId, true);
+            log.info("Добавлена дружба User id{} Friend id{}", id, friendId);
         } else {
+            log.info("Не добавлена дружба User id{} Friend id{}", id, friendId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -102,40 +104,53 @@ public class UserDbStorage implements UserStorage {
             String sql = "DELETE FROM FRIENDSHIP WHERE FROM_USER_ID = ? AND TO_USER_ID = ?;";
             boolean isDelete = jdbcTemplate.update(sql, id, friendId) < 1;
             if (isDelete) {
+                log.info("Не удалили дружбу User id{} Friend id{}", id, friendId);
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не возможно удалить");
+            } else {
+                log.info("Удалили дружбу User id{} Friend id{}", id, friendId);
             }
         } else {
+            log.info("Не найден дружба User id{} Friend id{}", id, friendId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
     public Collection<User> getUserFriends(int id) {
-        String sql = "select u.* " +
-                "from FRIENDSHIP as f " +
-                "join USERS as u on f.FROM_USER_ID = u.ID " +
-                "where f.FROM_USER_ID = ?";
+        String sql = "SELECT id, email, login, name, birthday"
+                + " FROM users AS u"
+                + " WHERE u.id IN ("
+                + "   SELECT TO_USER_ID AS user_id FROM friendship WHERE FROM_USER_ID = ?"
+                + " )";
+        log.info("Запрошены друзья User id{}", id);
         return jdbcTemplate.query(sql, this::mapRowToUser, id);
     }
 
     @Override
     public List<User> getCommonFriends(int id, int otherId) {
-        String sql = "select u.* " +
-                "from FRIENDSHIP as f1 " +
-                "join FRIENDSHIP as f2 on f2.FROM_USER_ID = ? " +
-                "and f2.TO_USER_ID = f1.TO_USER_ID " +
-                "join users as u on f1.TO_USER_ID = u.id " +
-                "where f1.FROM_USER_ID = ?";
+        String sql = "SELECT id, email, login, name, birthday"
+                + " FROM users AS u"
+                + " WHERE u.id IN ("
+                + "   SELECT TO_USER_ID AS user_id FROM friendship WHERE FROM_USER_ID = ?"
+                + "   UNION"
+                + "   SELECT FROM_USER_ID AS user_id FROM friendship WHERE TO_USER_ID = ?"
+                + " )"
+                + "AND u.ID IN ("
+                + "   SELECT TO_USER_ID AS user_id FROM friendship WHERE FROM_USER_ID = ?"
+                + "   UNION"
+                + "   SELECT FROM_USER_ID AS user_id FROM friendship WHERE TO_USER_ID = ?"
+                + " )";
 
-        return jdbcTemplate.query(sql, this::mapRowToUser, id, otherId);
+        return jdbcTemplate.query(sql, this::mapRowToUser,
+                id, id, otherId, otherId);
     }
 
     private void checkAndSetName(User user) {
         if (user.getName() == null) {
-            log.info("checkAndSetName добавлен User без Name");
+            log.trace("checkAndSetName добавлен User без Name");
             user.setName(user.getLogin());
         } else if (user.getName().isBlank()) {
-            log.info("checkAndSetName добавлен User isBlank Name");
+            log.trace("checkAndSetName добавлен User isBlank Name");
             user.setName(user.getLogin());
         }
     }
@@ -143,8 +158,8 @@ public class UserDbStorage implements UserStorage {
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return new User(Integer.parseInt(resultSet.getString("id")),
                 resultSet.getString("email"),
-                resultSet.getString("name"),
                 resultSet.getString("login"),
+                resultSet.getString("name"),
                 resultSet.getDate("birthday").toLocalDate());
 
     }

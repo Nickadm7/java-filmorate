@@ -72,7 +72,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT * FROM FILMS WHERE id = ?;";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, filmId);
         if (filmRows.next()) {
-            log.info("Удалось найти Film с id={}", filmId);
+            log.trace("Удалось найти Film с id={}", filmId);
             return new Film(
                     filmRows.getInt("id"),
                     filmRows.getString("name"),
@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
                     LocalDate.parse(Objects.requireNonNull(filmRows.getString("releaseDate"))),
                     filmRows.getInt("duration"));
         } else {
-            log.info("Не удалось найти Film с id={}", filmId);
+            log.trace("Не удалось найти Film с id={}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм не найден");
         }
     }
@@ -90,9 +90,9 @@ public class FilmDbStorage implements FilmStorage {
         if (getFilmById(id) != null) {
             String sql = "MERGE INTO LIKES KEY(FILM_ID, USER_ID) VALUES (?, ?);";
             jdbcTemplate.update(sql, id, userId);
-            log.info("User id={} поставил лайк Film id={}", userId, id);
+            log.trace("User id={} поставил лайк Film id={}", userId, id);
         } else {
-            log.info("Не удалось поставить лайкUser id={} Film id={}", userId, id);
+            log.trace("Не удалось поставить лайкUser id={} Film id={}", userId, id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -104,9 +104,9 @@ public class FilmDbStorage implements FilmStorage {
         if (likeRows.next()) {
             String sql1 = "DELETE FROM likes WHERE film_id = ? AND user_id = ?;";
             jdbcTemplate.update(sql1, id, userId);
-            log.info("User id={} удалил лайк Film id={}", userId, id);
+            log.trace("User id={} удалил лайк Film id={}", userId, id);
         } else {
-            log.info("Не удалось удалить лайк User id={} Film id={}", userId, id);
+            log.trace("Не удалось удалить лайк User id={} Film id={}", userId, id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
         }
