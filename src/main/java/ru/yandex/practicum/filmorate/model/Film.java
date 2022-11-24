@@ -40,14 +40,4 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private List<Genre> genres;
-
-    //Конструктор нужен для работы InMemoryFilmStorage
-    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Set<Integer> like) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.like = like;
-    }
 }
