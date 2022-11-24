@@ -17,11 +17,10 @@ public class MpaService {
     }
 
     public List<Mpa> getAllMpa() {
-        return mpaStorage.findMpa();
+        return mpaStorage.findAllMpa();
     }
 
     public Mpa getMpa(int genreId) {
         return mpaStorage.getMpa(genreId);
-
     }
 }

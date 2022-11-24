@@ -39,6 +39,7 @@ public class UserDbStorage implements UserStorage {
                 .addValue("birthday", user.getBirthday());
         Number id = simpleJdbcInsert.executeAndReturnKey(parameters);
         user.setId(id.intValue());
+        log.info("Добавлен User с id{}", id.intValue());
         return user;
     }
 
@@ -52,15 +53,18 @@ public class UserDbStorage implements UserStorage {
                     user.getEmail(),
                     user.getName(),
                     user.getBirthday());
+            log.info("Обновлен User с id{}", user.getId());
             return user;
         } else {
+            log.info("Не обновлен User с id{}", user.getId());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
     public Collection<User> getAllUsers() {
-        String sql = "SELECT * FROM USERS;";
+        String sql = "SELECT * FROM USERS";
+        log.info("Получен список всех User");
         return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
                 rs.getInt("id"),
                 rs.getString("email"),
@@ -75,6 +79,7 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * FROM USERS WHERE id = ?;";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         if (userRows.next()) {
+            log.info("Получен User с id{}", id);
             return new User(
                     userRows.getInt("id"),
                     userRows.getString("email"),
@@ -82,6 +87,7 @@ public class UserDbStorage implements UserStorage {
                     userRows.getString("name"),
                     LocalDate.parse(Objects.requireNonNull(userRows.getString("birthday"))));
         } else {
+            log.info("Не найден User с id{}", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден");
         }
     }
@@ -155,12 +161,18 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        return new User(Integer.parseInt(resultSet.getString("id")),
-                resultSet.getString("email"),
-                resultSet.getString("login"),
-                resultSet.getString("name"),
-                resultSet.getDate("birthday").toLocalDate());
-
+    private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
+        int idBuffer = Integer.parseInt(rs.getString("id"));
+        String emailBuffer = rs.getString("email");
+        String loginBuffer = rs.getString("login");
+        String nameBuffer = rs.getString("name");
+        LocalDate birthdayBuffer = rs.getDate("birthday").toLocalDate();
+        User bufferUser = new User();
+        bufferUser.setId(idBuffer);
+        bufferUser.setEmail(emailBuffer);
+        bufferUser.setLogin(loginBuffer);
+        bufferUser.setName(nameBuffer);
+        bufferUser.setBirthday(birthdayBuffer);
+        return bufferUser;
     }
 }

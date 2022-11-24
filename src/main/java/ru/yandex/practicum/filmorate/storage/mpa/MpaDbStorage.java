@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Component("MpaDbStorage")
-public class MpaDbStorage implements MpaStorage{
+public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -24,21 +24,21 @@ public class MpaDbStorage implements MpaStorage{
     }
 
     @Override
-    public List<Mpa> findMpa() {
-        String sql = "SELECT * FROM MPA_RATINGS";
-        log.info("Запрошен список всех Genres");
+    public List<Mpa> findAllMpa() {
+        String sql = "SELECT * FROM MPA";
+        log.info("Запрошен список всех Mpa");
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
 
     @Override
     public Mpa getMpa(int mpaId) {
-        String sql = "SELECT MPA_RATING_ID, NAME FROM MPA_RATINGS WHERE MPA_RATING_ID = ?";
+        String sql = "SELECT MPA_RATING_ID, MPA_NAME FROM MPA WHERE MPA_RATING_ID = ?";
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sql, mpaId);
         if (mpaRows.next()) {
             log.info("Запрошен Mpa по id={}", mpaId);
             return new Mpa(
                     mpaRows.getInt("MPA_RATING_ID"),
-                    mpaRows.getString("NAME"));
+                    mpaRows.getString("MPA_NAME"));
         } else {
             log.info("Запрошен не существующий Mpa с id={}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -48,7 +48,7 @@ public class MpaDbStorage implements MpaStorage{
     private Mpa mapRowToMpa(ResultSet rs, int rowNum) throws SQLException {
         return new Mpa(
                 rs.getInt("MPA_RATING_ID"),
-                rs.getString("NAME")
+                rs.getString("MPA_NAME")
         );
     }
 }

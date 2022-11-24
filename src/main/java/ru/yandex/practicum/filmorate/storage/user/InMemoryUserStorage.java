@@ -102,7 +102,7 @@ public class InMemoryUserStorage implements UserStorage {
                 Set<Integer> intersection = new HashSet<>(userStorage.get(id).getFriends());
                 Set<Integer> bufferSetOtherId = userStorage.get(otherId).getFriends();
                 intersection.retainAll(bufferSetOtherId);
-                for (Integer currentIdCommon: intersection) {
+                for (Integer currentIdCommon : intersection) {
                     friends.add(userStorage.get(currentIdCommon));
                 }
                 return friends;

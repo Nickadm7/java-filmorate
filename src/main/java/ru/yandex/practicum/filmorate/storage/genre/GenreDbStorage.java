@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Component("GenreDbStorage")
-public class GenreDbStorage implements GenreStorage{
+public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -31,18 +31,39 @@ public class GenreDbStorage implements GenreStorage{
     }
 
     @Override
-    public Genre getGenre(int genreId) {
-        String sql = "SELECT GENRE_ID, NAME FROM GENRES WHERE GENRE_ID = ?";
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sql, genreId);
-        if (genreRows.next()) {
-            log.info("Запрошен genre по id={}", genreId);
-            return new Genre(
-                    genreRows.getInt("GENRE_ID"),
-                    genreRows.getString("NAME"));
+    public Genre getGenreById(int idGenre) {
+        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, idGenre);
+        if (userRows.next()) {
+            log.info("Запрошен Genre по id{}", idGenre);
+            return jdbcTemplate.query(sql, this::mapRowToGenre, idGenre).get(0);
         } else {
-            log.info("Запрошен не существующий genre с id={}", genreId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            log.info("Не найден Genre по id{}", idGenre);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден");
         }
+    }
+
+    @Override
+    public List<Genre> getGenresByFilmId(int filmId) {
+        final String getGenresFilm = "SELECT * FROM GENRES " +
+                "LEFT JOIN FILM_GENRE FG ON GENRES.GENRE_ID = FG.GENRE_ID " +
+                "WHERE FG.FILM_ID = ?";
+        return jdbcTemplate.query(getGenresFilm, this::mapRowToGenre, filmId);
+    }
+
+    @Override
+    public void addFilmGenreByFilmId(int idFilm, List<Genre> genres) {
+        final String addGenreFilm = "MERGE INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
+        for (Genre genre : genres) {
+            jdbcTemplate.update(addGenreFilm, idFilm, genre.getId());
+        }
+    }
+
+    @Override
+    public void removeFilmGenreByFilmId(int idFilm) {
+        final String removeGenreFilmSql = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
+
+        jdbcTemplate.update(removeGenreFilmSql, idFilm);
     }
 
     private Genre mapRowToGenre(ResultSet rs, int rowNum) throws SQLException {

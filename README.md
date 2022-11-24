@@ -1,2 +1,6 @@
-# java-filmorate
-Template repository for Filmorate project.
+# Собственный мини КИНОПОИСК
+## java-filmorate
+#### Бэкенд для сервиса, который работает с фильмами и оценками пользователей. 
+#### *Теперь ни вам, ни вашим друзьям не придётся долго размышлять, что посмотреть вечером.*
+
+![diagram](src/main/resources/diagram.png)

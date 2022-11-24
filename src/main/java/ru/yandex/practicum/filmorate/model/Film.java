@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.validation.AfterFirstFilm;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -35,11 +36,12 @@ public class Film {
     @Positive
     private Integer duration;
     @JsonIgnore
-    private Set<Integer> like = new HashSet<>();
+    private Set<Integer> like = new HashSet<>(); //для InMemoryFilmStorage
     @NotNull
     private Mpa mpa;
-    private Set<Genre> genres;
+    private List<Genre> genres;
 
+    //Конструктор нужен для работы InMemoryFilmStorage
     public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Set<Integer> like) {
         this.id = id;
         this.name = name;
@@ -47,23 +49,5 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.like = like;
-    }
-
-    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
-
-    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, Set<Genre> genres) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-        this.genres = genres;
     }
 }
