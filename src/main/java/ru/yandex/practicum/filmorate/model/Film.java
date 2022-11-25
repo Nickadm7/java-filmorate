@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -11,6 +12,9 @@ import ru.yandex.practicum.filmorate.validation.AfterFirstFilm;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -31,4 +35,9 @@ public class Film {
     @NotNull
     @Positive
     private Integer duration;
+    @JsonIgnore
+    private Set<Integer> like = new HashSet<>(); //для InMemoryFilmStorage
+    @NotNull
+    private Mpa mpa;
+    private List<Genre> genres;
 }

@@ -11,8 +11,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,13 +31,18 @@ public class ModelFilmValidTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private Film getValidFilm() {
+        Mpa mpa = new Mpa(1, "Комедия");
+        Set<Integer> likes = new HashSet<>();
+        List<Genre> genres = new ArrayList<>();
         return new Film(
                 1,
                 "TestName",
                 "Description",
                 LocalDate.of(2007, 12, 12),
-                100
-        );
+                100,
+                likes,
+                mpa,
+                genres);
     }
 
     @DisplayName("Создание фильма с верными полями")
