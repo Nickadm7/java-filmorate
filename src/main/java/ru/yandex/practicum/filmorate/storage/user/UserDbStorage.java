@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,7 +17,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-@Slf4j
 @Component("UserDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -39,7 +37,6 @@ public class UserDbStorage implements UserStorage {
                 .addValue("birthday", user.getBirthday());
         Number id = simpleJdbcInsert.executeAndReturnKey(parameters);
         user.setId(id.intValue());
-        log.info("Добавлен User с id{}", id.intValue());
         return user;
     }
 
@@ -53,10 +50,8 @@ public class UserDbStorage implements UserStorage {
                     user.getEmail(),
                     user.getName(),
                     user.getBirthday());
-            log.info("Обновлен User с id{}", user.getId());
             return user;
         } else {
-            log.info("Не обновлен User с id{}", user.getId());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -64,7 +59,6 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getAllUsers() {
         String sql = "SELECT * FROM USERS";
-        log.info("Получен список всех User");
         return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
                 rs.getInt("id"),
                 rs.getString("email"),
@@ -79,7 +73,6 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * FROM USERS WHERE id = ?;";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         if (userRows.next()) {
-            log.info("Получен User с id{}", id);
             return new User(
                     userRows.getInt("id"),
                     userRows.getString("email"),
@@ -87,7 +80,6 @@ public class UserDbStorage implements UserStorage {
                     userRows.getString("name"),
                     LocalDate.parse(Objects.requireNonNull(userRows.getString("birthday"))));
         } else {
-            log.info("Не найден User с id{}", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден");
         }
     }
@@ -97,9 +89,7 @@ public class UserDbStorage implements UserStorage {
         if (getUserById(id) != null && getUserById(friendId) != null) {
             String sql = "INSERT INTO FRIENDSHIP (FROM_USER_ID, TO_USER_ID, STATUS) VALUES (?, ?, ?)";
             jdbcTemplate.update(sql, id, friendId, true);
-            log.info("Добавлена дружба User id{} Friend id{}", id, friendId);
         } else {
-            log.info("Не добавлена дружба User id{} Friend id{}", id, friendId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -110,13 +100,9 @@ public class UserDbStorage implements UserStorage {
             String sql = "DELETE FROM FRIENDSHIP WHERE FROM_USER_ID = ? AND TO_USER_ID = ?;";
             boolean isDelete = jdbcTemplate.update(sql, id, friendId) < 1;
             if (isDelete) {
-                log.info("Не удалили дружбу User id{} Friend id{}", id, friendId);
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не возможно удалить");
-            } else {
-                log.info("Удалили дружбу User id{} Friend id{}", id, friendId);
             }
         } else {
-            log.info("Не найден дружба User id{} Friend id{}", id, friendId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -128,7 +114,6 @@ public class UserDbStorage implements UserStorage {
                 + " WHERE u.id IN ("
                 + "   SELECT TO_USER_ID AS user_id FROM friendship WHERE FROM_USER_ID = ?"
                 + " )";
-        log.info("Запрошены друзья User id{}", id);
         return jdbcTemplate.query(sql, this::mapRowToUser, id);
     }
 
@@ -146,17 +131,14 @@ public class UserDbStorage implements UserStorage {
                 + "   UNION"
                 + "   SELECT FROM_USER_ID AS user_id FROM friendship WHERE TO_USER_ID = ?"
                 + " )";
-
         return jdbcTemplate.query(sql, this::mapRowToUser,
                 id, id, otherId, otherId);
     }
 
     private void checkAndSetName(User user) {
         if (user.getName() == null) {
-            log.trace("checkAndSetName добавлен User без Name");
             user.setName(user.getLogin());
         } else if (user.getName().isBlank()) {
-            log.trace("checkAndSetName добавлен User isBlank Name");
             user.setName(user.getLogin());
         }
     }

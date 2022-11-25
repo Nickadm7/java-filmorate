@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.mpa;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Slf4j
 @Component("MpaDbStorage")
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -26,7 +24,6 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public List<Mpa> findAllMpa() {
         String sql = "SELECT * FROM MPA";
-        log.info("Запрошен список всех Mpa");
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
 
@@ -35,12 +32,10 @@ public class MpaDbStorage implements MpaStorage {
         String sql = "SELECT MPA_RATING_ID, MPA_NAME FROM MPA WHERE MPA_RATING_ID = ?";
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sql, mpaId);
         if (mpaRows.next()) {
-            log.info("Запрошен Mpa по id={}", mpaId);
             return new Mpa(
                     mpaRows.getInt("MPA_RATING_ID"),
                     mpaRows.getString("MPA_NAME"));
         } else {
-            log.info("Запрошен не существующий Mpa с id={}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }

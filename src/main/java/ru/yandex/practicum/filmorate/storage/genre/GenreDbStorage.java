@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Slf4j
 @Component("GenreDbStorage")
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -26,7 +24,6 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public List<Genre> findGenres() {
         String sql = "SELECT * FROM GENRES";
-        log.info("Запрошен список всех Genres");
         return jdbcTemplate.query(sql, this::mapRowToGenre);
     }
 
@@ -35,10 +32,8 @@ public class GenreDbStorage implements GenreStorage {
         String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, idGenre);
         if (userRows.next()) {
-            log.info("Запрошен Genre по id{}", idGenre);
             return jdbcTemplate.query(sql, this::mapRowToGenre, idGenre).get(0);
         } else {
-            log.info("Не найден Genre по id{}", idGenre);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден");
         }
     }
@@ -62,7 +57,6 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public void removeFilmGenreByFilmId(int idFilm) {
         final String removeGenreFilmSql = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
-
         jdbcTemplate.update(removeGenreFilmSql, idFilm);
     }
 

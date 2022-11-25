@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,7 +20,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component("FilmDbStorage")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
@@ -80,7 +78,6 @@ public class FilmDbStorage implements FilmStorage {
     public Collection<Film> getAllFilms() {
         String sql = "SELECT * FROM FILMS AS F " +
                 "LEFT JOIN MPA AS M ON M.MPA_RATING_ID = F.MPA_RATING;";
-        log.info("Запрошен список всех Film");
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
@@ -93,10 +90,8 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE F.ID = ?;";
         List<Film> buffer = jdbcTemplate.query(sql, this::mapRowToFilm, filmId);
         if (buffer.size() > 0) {
-            log.info("Удалось найти Film с id={}", filmId);
             return buffer.get(0);
         } else {
-            log.info("Не удалось найти Film с id={}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм не найден");
         }
     }
@@ -106,9 +101,7 @@ public class FilmDbStorage implements FilmStorage {
         if (getFilmById(id) != null) {
             String sql = "MERGE INTO LIKES KEY(FILM_ID, USER_ID) VALUES (?, ?);";
             jdbcTemplate.update(sql, id, userId);
-            log.info("User id={} поставил лайк Film id={}", userId, id);
         } else {
-            log.info("Не удалось поставить лайкUser id={} Film id={}", userId, id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -120,11 +113,8 @@ public class FilmDbStorage implements FilmStorage {
         if (likeRows.next()) {
             String sql1 = "DELETE FROM likes WHERE film_id = ? AND user_id = ?;";
             jdbcTemplate.update(sql1, id, userId);
-            log.info("User id={} удалил лайк Film id={}", userId, id);
         } else {
-            log.info("Не удалось удалить лайк User id={} Film id={}", userId, id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
         }
     }
 
